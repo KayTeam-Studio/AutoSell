@@ -1,0 +1,12 @@
+name: AutoSell
+author: XNonymous
+main: de.xnonymous.autosell.AutoSell
+version: v1.0
+commands:
+  GiveAutoSellChest:
+    permission: autosell.give
+  EnableAutoSellChestDebug:
+  ListAutoSellChests:
+depend:
+  - Essentials
+  - Vault
