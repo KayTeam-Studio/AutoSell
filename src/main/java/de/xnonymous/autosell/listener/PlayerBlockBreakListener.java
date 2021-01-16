@@ -4,7 +4,6 @@ import de.xnonymous.autosell.AutoSell;
 import de.xnonymous.autosell.chest.PlayerChest;
 import de.xnonymous.autosell.config.impl.ChestConfig;
 import de.xnonymous.autosell.utils.ItemBuilder;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.event.EventHandler;
@@ -19,7 +18,7 @@ public class PlayerBlockBreakListener implements Listener {
         if (!event.isCancelled()) {
             if (event.getBlock().getType() == Material.CHEST) {
                 Location location = event.getBlock().getLocation();
-                PlayerChest playerChest = AutoSell.getAutoSell().getPlayerChestManager().find(location);
+                PlayerChest playerChest = AutoSell.getAutoSell().getPlayerChestRegistry().find(location);
 
                 if (playerChest != null) {
                     playerChest.remove(location);

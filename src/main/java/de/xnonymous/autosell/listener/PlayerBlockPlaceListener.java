@@ -21,10 +21,10 @@ public class PlayerBlockPlaceListener implements Listener {
                     if (event.getItemInHand().getItemMeta() != null) {
                         if (event.getItemInHand().getItemMeta().hasDisplayName()) {
                             if (event.getItemInHand().getItemMeta().getDisplayName().equals("§aAutoSell Chest")) {
-                                PlayerChest playerChest = AutoSell.getAutoSell().getPlayerChestManager().find(event.getPlayer());
+                                PlayerChest playerChest = AutoSell.getAutoSell().getPlayerChestRegistry().find(event.getPlayer());
                                 if (playerChest == null) {
                                     playerChest = new PlayerChest(event.getPlayer(), new ArrayList<>(), false);
-                                    AutoSell.getAutoSell().getPlayerChestManager().add(playerChest);
+                                    AutoSell.getAutoSell().getPlayerChestRegistry().add(playerChest);
                                 }
                                 if (playerChest.available() > 0) {
                                     playerChest.add(event.getBlock().getLocation());

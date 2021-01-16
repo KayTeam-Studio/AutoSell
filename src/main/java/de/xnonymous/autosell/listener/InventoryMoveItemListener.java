@@ -20,7 +20,7 @@ public class InventoryMoveItemListener implements Listener {
             Location location = event.getDestination().getLocation();
             if (locations.contains(location))
                 return;
-            PlayerChest playerChest = AutoSell.getAutoSell().getPlayerChestManager().find(location);
+            PlayerChest playerChest = AutoSell.getAutoSell().getPlayerChestRegistry().find(location);
             if (playerChest == null)
                 return;
             locations.add(location);

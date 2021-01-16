@@ -11,11 +11,11 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Data
-public class PlayerChestManager {
+public class PlayerChestRegistry {
 
     private ArrayList<PlayerChest> playerChests = new ArrayList<>();
 
-    public PlayerChestManager() {
+    public PlayerChestRegistry() {
         try {
             for (String key : AutoSell.getAutoSell().getChestConfig().getCfg().getKeys(false)) {
                 OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(UUID.fromString(key));
@@ -34,19 +34,11 @@ public class PlayerChestManager {
     }
 
     public PlayerChest find(Location location) {
-        try {
-            return playerChests.stream().filter(playerChest -> playerChest.getChests().stream().anyMatch(location1 -> location1.equals(location))).collect(Collectors.toList()).get(0);
-        } catch (Exception ignored) {
-            return null;
-        }
+        return playerChests.stream().filter(playerChest -> playerChest.getChests().stream().anyMatch(location1 -> location1.equals(location))).findFirst().orElse(null);
     }
 
     public PlayerChest find(OfflinePlayer player) {
-        try {
-            return playerChests.stream().filter(playerChest -> playerChest.getOfflinePlayer().getUniqueId().toString().equals(player.getUniqueId().toString())).collect(Collectors.toList()).get(0);
-        } catch (Exception ignored) {
-            return null;
-        }
+        return playerChests.stream().filter(playerChest -> playerChest.getOfflinePlayer().getUniqueId().toString().equals(player.getUniqueId().toString())).findFirst().orElse(null);
     }
 
     public void add(PlayerChest playerChest) {

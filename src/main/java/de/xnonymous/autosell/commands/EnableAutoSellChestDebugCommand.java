@@ -15,15 +15,15 @@ public class EnableAutoSellChestDebugCommand implements CommandExecutor {
         }
         Player player = (Player) commandSender;
 
-        if (AutoSell.getAutoSell().getPlayerChestManager().find(player) == null) {
+        if (AutoSell.getAutoSell().getPlayerChestRegistry().find(player) == null) {
             player.sendMessage(AutoSell.getAutoSell().getPrefix() + "You must have placed at least one chest to enable debugging");
             return false;
         }
 
-        AutoSell.getAutoSell().getPlayerChestManager().find(player).setDebug(!AutoSell.getAutoSell().getPlayerChestManager().find(player).isDebug());
-        AutoSell.getAutoSell().getChestConfig().getCfg().set(player.getUniqueId().toString() + ".debug", AutoSell.getAutoSell().getPlayerChestManager().find(player).isDebug());
+        AutoSell.getAutoSell().getPlayerChestRegistry().find(player).setDebug(!AutoSell.getAutoSell().getPlayerChestRegistry().find(player).isDebug());
+        AutoSell.getAutoSell().getChestConfig().getCfg().set(player.getUniqueId().toString() + ".debug", AutoSell.getAutoSell().getPlayerChestRegistry().find(player).isDebug());
         AutoSell.getAutoSell().getChestConfig().save();
-        player.sendMessage(AutoSell.getAutoSell().getPrefix() + "Debugging " + (AutoSell.getAutoSell().getPlayerChestManager().find(player).isDebug() ? "enabled" : "disabled"));
+        player.sendMessage(AutoSell.getAutoSell().getPrefix() + "Debugging " + (AutoSell.getAutoSell().getPlayerChestRegistry().find(player).isDebug() ? "enabled" : "disabled"));
 
         return false;
     }

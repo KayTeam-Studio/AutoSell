@@ -1,7 +1,6 @@
 package de.xnonymous.autosell;
 
-import de.xnonymous.autosell.chest.PlayerChest;
-import de.xnonymous.autosell.chest.PlayerChestManager;
+import de.xnonymous.autosell.chest.PlayerChestRegistry;
 import de.xnonymous.autosell.commands.EnableAutoSellChestDebugCommand;
 import de.xnonymous.autosell.commands.GiveAutoSellChestCommand;
 import de.xnonymous.autosell.commands.ListAutoSellCommand;
@@ -21,7 +20,6 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
-import sun.applet.Main;
 
 @Getter
 @Setter
@@ -30,7 +28,7 @@ public class AutoSell extends JavaPlugin {
     @Getter
     private static AutoSell autoSell;
 
-    private PlayerChestManager playerChestManager;
+    private PlayerChestRegistry playerChestRegistry;
     private ConfigRegistry configRegistry;
 
     private String prefix;
@@ -57,7 +55,7 @@ public class AutoSell extends JavaPlugin {
         prefix = defaultConfig.getCfg().getString("Prefix").replaceAll("&", "§") + " ";
         multiplier = defaultConfig.getCfg().getDouble("Multiplier");
         chestLimit = defaultConfig.getCfg().getInt("ChestLimit");
-        this.playerChestManager = new PlayerChestManager();
+        this.playerChestRegistry = new PlayerChestRegistry();
     }
 
     @Override

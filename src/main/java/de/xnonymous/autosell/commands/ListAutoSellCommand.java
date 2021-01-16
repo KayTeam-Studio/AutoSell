@@ -17,7 +17,7 @@ public class ListAutoSellCommand implements CommandExecutor {
         }
         Player player = (Player) commandSender;
 
-        PlayerChest playerChest = AutoSell.getAutoSell().getPlayerChestManager().find(player);
+        PlayerChest playerChest = AutoSell.getAutoSell().getPlayerChestRegistry().find(player);
         if (playerChest != null && !playerChest.getChests().isEmpty()) {
             player.sendMessage(AutoSell.getAutoSell().getPrefix() + "Here:");
             for (Location chest : playerChest.getChests()) {

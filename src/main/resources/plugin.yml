@@ -6,7 +6,9 @@ commands:
   GiveAutoSellChest:
     permission: autosell.give
   EnableAutoSellChestDebug:
+    permission: autosell.debug
   ListAutoSellChests:
+    permission: autosell.list
 depend:
   - Essentials
   - Vault
