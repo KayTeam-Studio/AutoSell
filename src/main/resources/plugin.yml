@@ -1,7 +1,7 @@
 name: AutoSell
 author: XNonymous
 main: de.xnonymous.autosell.AutoSell
-version: v1.1
+version: v1.2
 commands:
   GiveAutoSellChest:
     permission: autosell.give
@@ -9,6 +9,7 @@ commands:
     permission: autosell.debug
   ListAutoSellChests:
     permission: autosell.list
+  ReloadAutoSellConfig:
+    permission: autosell.reload
 depend:
-  - Essentials
   - Vault

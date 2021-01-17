@@ -1,9 +1,9 @@
 package de.xnonymous.autosell.chest;
 
 import de.xnonymous.autosell.AutoSell;
+import de.xnonymous.autosell.config.impl.WorthConfig;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import net.ess3.api.IEssentials;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
@@ -12,7 +12,6 @@ import org.bukkit.inventory.ItemStack;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Objects;
 
 @AllArgsConstructor
 @Data
@@ -29,25 +28,25 @@ public class PlayerChest {
                 continue;
 
             try {
-                IEssentials essentials = AutoSell.getAutoSell().getEssentials();
-                BigDecimal bigDecimal = essentials.getWorth().getPrice(essentials, content);
+                WorthConfig worthConfig = AutoSell.getAutoSell().getWorthConfig();
+                double price =  worthConfig.getCfg().getDouble(content.getType().name());
 
-                if (bigDecimal == null)
-                    throw new Exception("Null");
+                double real = (price * content.getAmount()) * AutoSell.getAutoSell().getMultiplier();
 
-                double real = (bigDecimal.doubleValue() * content.getAmount()) * AutoSell.getAutoSell().getMultiplier();
+                if (1 > real) {
+                    debug("Price is not defined in worth.yml!");
+                    debug("Please set a price for " + content.getType().name());
+                    continue;
+                }
+
                 debug("Selling " + content.getAmount() + " " + content.getType().name().replaceAll("_", "") + " for " + round(real, 2) + "$");
-
                 content.setAmount(0);
                 AutoSell.getAutoSell().getEcon().depositPlayer(offlinePlayer, real);
             } catch (Exception ignored) {
                 try {
-                    debug("Could not sell " + AutoSell.getAutoSell().getEssentials().getItemDb().get(content.getType().name().replaceAll("_", "")).toString()
-                    .replaceAll("ItemStack", "")
-                    .replaceAll("\\{", "")
-                    .replaceAll("}", ""));
+                    debug("Could not sell " + content.getType().name());
                 } catch (Exception e) {
-                    debug("Could not find this item in itemdb.");
+                    debug("Item error!");
                 }
             }
         }

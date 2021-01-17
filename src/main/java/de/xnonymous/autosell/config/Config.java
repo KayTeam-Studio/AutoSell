@@ -24,6 +24,11 @@ public class Config implements INameable {
         this.cfg = YamlConfiguration.loadConfiguration(file);
     }
 
+    public void reload() {
+        this.file = new File(AutoSell.getAutoSell().getDataFolder(), name + ".yml");
+        this.cfg = YamlConfiguration.loadConfiguration(file);
+    }
+
     public void save() {
         try {
             cfg.save(file);
