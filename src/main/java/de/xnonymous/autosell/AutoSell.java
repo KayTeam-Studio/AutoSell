@@ -35,6 +35,7 @@ public class AutoSell extends JavaPlugin {
     private String prefix;
     private double multiplier;
     private int chestLimit;
+    private double price;
 
     private Economy econ;
 
@@ -68,6 +69,7 @@ public class AutoSell extends JavaPlugin {
         defaultConfig.getCfg().addDefault("Prefix", "&b[AutoSell] &a»");
         defaultConfig.getCfg().addDefault("Multiplier", 1.0);
         defaultConfig.getCfg().addDefault("ChestLimit", 3);
+        defaultConfig.getCfg().addDefault("Price", 100.0);
         defaultConfig.getCfg().options().copyDefaults(true);
         defaultConfig.save();
 
@@ -81,6 +83,7 @@ public class AutoSell extends JavaPlugin {
         prefix = defaultConfig.getCfg().getString("Prefix").replaceAll("&", "§") + " ";
         multiplier = defaultConfig.getCfg().getDouble("Multiplier");
         chestLimit = defaultConfig.getCfg().getInt("ChestLimit");
+        price = defaultConfig.getCfg().getDouble("Price");
     }
 
     private void setupEconomy() {

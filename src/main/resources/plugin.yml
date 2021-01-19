@@ -1,7 +1,7 @@
 name: AutoSell
 author: XNonymous
 main: de.xnonymous.autosell.AutoSell
-version: v1.2
+version: v1.3
 commands:
   GiveAutoSellChest:
     permission: autosell.give

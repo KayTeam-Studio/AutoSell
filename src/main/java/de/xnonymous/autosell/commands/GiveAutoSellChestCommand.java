@@ -18,8 +18,13 @@ public class GiveAutoSellChestCommand implements CommandExecutor {
         Player player = (Player) commandSender;
 
         try {
-            player.getInventory().addItem(new ItemBuilder(Material.CHEST).setName("§aAutoSell Chest").toItemStack());
-            player.sendMessage(AutoSell.getAutoSell().getPrefix() + "Happy selling!");
+            if (AutoSell.getAutoSell().getEcon().has(player, AutoSell.getAutoSell().getPrice())) {
+                player.getInventory().addItem(new ItemBuilder(Material.CHEST).setName("§aAutoSell Chest").toItemStack());
+                AutoSell.getAutoSell().getEcon().withdrawPlayer(player, AutoSell.getAutoSell().getPrice());
+                player.sendMessage(AutoSell.getAutoSell().getPrefix() + "Happy selling!");
+            } else {
+                player.sendMessage(AutoSell.getAutoSell().getPrefix() + "You need " + (AutoSell.getAutoSell().getPrice() - AutoSell.getAutoSell().getEcon().getBalance(player)) + " more cash to buy a Autosell chest!");
+            }
         } catch (Exception ignored) {
             player.sendMessage(AutoSell.getAutoSell().getPrefix() + "Your inventory is full");
         }
