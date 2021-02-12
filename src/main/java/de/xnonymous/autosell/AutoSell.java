@@ -103,6 +103,7 @@ public class AutoSell extends JavaPlugin {
     }
 
     private void registerCommands() {
+        getCommand("BuyAutoSellChest").setExecutor(new BuyAutoSellChestCommand());
         getCommand("GiveAutoSellChest").setExecutor(new GiveAutoSellChestCommand());
         getCommand("EnableAutoSellChestDebug").setExecutor(new EnableAutoSellChestDebugCommand());
         getCommand("ListAutoSellChests").setExecutor(new ListAutoSellCommand());
