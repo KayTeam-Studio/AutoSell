@@ -4,8 +4,11 @@ main: de.xnonymous.autosell.AutoSell
 version: v1.3
 commands:
   BuyAutoSellChest:
+    description: Buy one or more Autosell chests
+    usage: /buyautosellchest [player] [amount]
     permission: autosell.buy
   GiveAutoSellChest:
+    usage: /giveautosellchest [player] [amount]
     permission: autosell.give
   EnableAutoSellChestDebug:
     permission: autosell.debug
