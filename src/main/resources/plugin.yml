@@ -3,6 +3,8 @@ author: XNonymous
 main: de.xnonymous.autosell.AutoSell
 version: v1.3
 commands:
+  BuyAutoSellChest:
+    permission: autosell.buy
   GiveAutoSellChest:
     permission: autosell.give
   EnableAutoSellChestDebug:
