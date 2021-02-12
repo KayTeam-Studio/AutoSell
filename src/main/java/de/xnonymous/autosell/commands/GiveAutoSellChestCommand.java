@@ -10,23 +10,38 @@ import org.bukkit.entity.Player;
 
 public class GiveAutoSellChestCommand implements CommandExecutor {
     @Override
-    public boolean onCommand(CommandSender commandSender, Command command, String s, String[] strings) {
-        if (!(commandSender instanceof Player)) {
-            commandSender.sendMessage("You must be a player to execute this command");
-            return false;
-        }
+    public boolean onCommand(CommandSender commandSender, Command command, String s, String[] args) {
         Player player = (Player) commandSender;
+        Player target = (Bukkit.getServer().getPlayer(args[0]));
+        int amount = 1;
+        
+        if (args.length > 2) {
+            commandSender.sendMessage("Too many arguments!");
+            return false;
+    } 
+        if (args.length < 1) {
+            commandSender.sendMessage("Not enough arguments!");
+            return false;
+    }
+        if (target == null) {
+            commandSender.sendMessage(args[0] + " is not online!");
+            return false;
+    }
+        if (args[1]) {
+            try {
+                amount = Integer.parseInt(args[1]);
+        }
+            catch (NumberFormatException e) {
+                commandSender.sendMessage(args[1] + " is not a number");
+                return false;
+        }
+    }
 
         try {
-            if (AutoSell.getAutoSell().getEcon().has(player, AutoSell.getAutoSell().getPrice())) {
-                player.getInventory().addItem(new ItemBuilder(Material.CHEST).setName("§aAutoSell Chest").toItemStack());
-                AutoSell.getAutoSell().getEcon().withdrawPlayer(player, AutoSell.getAutoSell().getPrice());
-                player.sendMessage(AutoSell.getAutoSell().getPrefix() + "Happy selling!");
-            } else {
-                player.sendMessage(AutoSell.getAutoSell().getPrefix() + "You need " + (AutoSell.getAutoSell().getPrice() - AutoSell.getAutoSell().getEcon().getBalance(player)) + " more cash to buy a Autosell chest!");
-            }
+            target.getInventory().addItem(new ItemBuilder(Material.CHEST, amount).setName("§aAutoSell Chest").toItemStack());
+            target.sendMessage(AutoSell.getAutoSell().getPrefix() + "Happy selling!");
         } catch (Exception ignored) {
-            player.sendMessage(AutoSell.getAutoSell().getPrefix() + "Your inventory is full");
+            player.sendMessage(AutoSell.getAutoSell().getPrefix() + "The inventory of " + args[0] + " is full");
         }
 
         return false;
