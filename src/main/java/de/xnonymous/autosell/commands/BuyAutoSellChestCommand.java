@@ -31,22 +31,16 @@ public class BuyAutoSellChestCommand implements CommandExecutor {
             commandSender.sendMessage(args[0] + " is not online!");
             return false;
         }
-        if (args[0] != null) {
-            try {
-                amount = Integer.parseInt(args[0]);
-            }
-             catch (NumberFormatException e) {
-                target = (Bukkit.getServer().getPlayer(args[0]));
-            }
+        if (args[0].matches("-?(0|[1-9]\\d*)")) {
+            amount = Integer.parseInt(args[0]);
+        } else {
+            target = (Bukkit.getServer().getPlayer(args[0]));
         }
-        if (args[1] != null) {
-            try {
-                amount = Integer.parseInt(args[1]);
-            }
-            catch (NumberFormatException e) {
-                commandSender.sendMessage(args[1] + " is not a number");
-                return false;
-            }
+        if (args[1].matches("-?(0|[1-9]\\d*)")) {
+            amount = Integer.parseInt(args[1]);
+        } else {
+            commandSender.sendMessage(args[1] + " is not a number");
+            return false;
         }
         
         int price = AutoSell.getAutoSell().getPrice() * amount;
