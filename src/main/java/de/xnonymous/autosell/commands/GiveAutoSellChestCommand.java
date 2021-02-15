@@ -27,7 +27,7 @@ public class GiveAutoSellChestCommand implements CommandExecutor {
             commandSender.sendMessage(args[0] + " is not online!");
             return false;
     }
-        if (args[1]) {
+        if (args[1] != null) {
             try {
                 amount = Integer.parseInt(args[1]);
         }
