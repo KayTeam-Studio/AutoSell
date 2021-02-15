@@ -31,7 +31,7 @@ public class BuyAutoSellChestCommand implements CommandExecutor {
             commandSender.sendMessage(args[0] + " is not online!");
             return false;
         }
-        if (args[0]) {
+        if (args[0] != null) {
             try {
                 amount = Integer.parseInt(args[0]);
             }
@@ -39,7 +39,7 @@ public class BuyAutoSellChestCommand implements CommandExecutor {
                 target = (Bukkit.getServer().getPlayer(args[0]));
             }
         }
-        if (args[1]) {
+        if (args[1] != null) {
             try {
                 amount = Integer.parseInt(args[1]);
             }
