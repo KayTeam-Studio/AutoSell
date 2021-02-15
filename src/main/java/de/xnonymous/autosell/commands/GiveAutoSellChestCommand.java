@@ -18,24 +18,21 @@ public class GiveAutoSellChestCommand implements CommandExecutor {
         if (args.length > 2) {
             commandSender.sendMessage("Too many arguments!");
             return false;
-    } 
+        } 
         if (args.length < 1) {
             commandSender.sendMessage("Not enough arguments!");
             return false;
-    }
+        }
         if (target == null) {
             commandSender.sendMessage(args[0] + " is not online!");
             return false;
-    }
-        if (args[1] != null) {
-            try {
-                amount = Integer.parseInt(args[1]);
         }
-            catch (NumberFormatException e) {
-                commandSender.sendMessage(args[1] + " is not a number");
-                return false;
+        if (args[1].matches("-?(0|[1-9]\\d*)")) {
+            amount = Integer.parseInt(args[1]);
+        } else {
+            commandSender.sendMessage(args[1] + " is not a number");
+            return false;
         }
-    }
 
         try {
             target.getInventory().addItem(new ItemBuilder(Material.CHEST, amount).setName("§aAutoSell Chest").toItemStack());
