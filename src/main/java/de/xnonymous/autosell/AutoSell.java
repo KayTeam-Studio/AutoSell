@@ -1,10 +1,7 @@
 package de.xnonymous.autosell;
 
 import de.xnonymous.autosell.chest.PlayerChestRegistry;
-import de.xnonymous.autosell.commands.EnableAutoSellChestDebugCommand;
-import de.xnonymous.autosell.commands.GiveAutoSellChestCommand;
-import de.xnonymous.autosell.commands.ListAutoSellCommand;
-import de.xnonymous.autosell.commands.ReloadConfigCommand;
+import de.xnonymous.autosell.commands.*;
 import de.xnonymous.autosell.config.ConfigRegistry;
 import de.xnonymous.autosell.config.impl.ChestConfig;
 import de.xnonymous.autosell.config.impl.DefaultConfig;

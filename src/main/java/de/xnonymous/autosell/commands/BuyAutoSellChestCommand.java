@@ -2,6 +2,7 @@ package de.xnonymous.autosell.commands;
 
 import de.xnonymous.autosell.AutoSell;
 import de.xnonymous.autosell.utils.ItemBuilder;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -18,6 +19,7 @@ public class BuyAutoSellChestCommand implements CommandExecutor {
         Player player = (Player) commandSender;
         Player target = player;
         int amount = 1;
+        double price;
         
         if (args.length > 2) {
             commandSender.sendMessage("Too many arguments!");
@@ -27,29 +29,35 @@ public class BuyAutoSellChestCommand implements CommandExecutor {
             commandSender.sendMessage("Not enough arguments!");
             return false;
         }
-        if (target == null) {
-            commandSender.sendMessage(args[0] + " is not online!");
-            return false;
-        }
         if (args[0].matches("-?(0|[1-9]\\d*)")) {
             amount = Integer.parseInt(args[0]);
         } else {
             target = (Bukkit.getServer().getPlayer(args[0]));
+            if (target == null) {
+                commandSender.sendMessage(args[0] + " is not online!");
+                return true;
+            }
         }
-        if (args[1].matches("-?(0|[1-9]\\d*)")) {
-            amount = Integer.parseInt(args[1]);
-        } else {
-            commandSender.sendMessage(args[1] + " is not a number");
-            return false;
+        if (args.length == 2) {
+            if (args[1].matches("-?(0|[1-9]\\d*)")) {
+                amount = Integer.parseInt(args[1]);
+            } else {
+                commandSender.sendMessage(args[1] + " is not a number");
+                return false;
+            }
         }
-        
-        int price = AutoSell.getAutoSell().getPrice() * amount;
+        if (Integer.signum(amount) != 1) {
+            commandSender.sendMessage("Amount must be greater than 0");
+            return true;
+        }
+
+        price = AutoSell.getAutoSell().getPrice() * amount;
 
         try {
             if (AutoSell.getAutoSell().getEcon().has(player, price)) {
                 target.getInventory().addItem(new ItemBuilder(Material.CHEST, amount).setName("§aAutoSell Chest").toItemStack());
                 AutoSell.getAutoSell().getEcon().withdrawPlayer(player, price);
-                if (target.getName() == player.getName()) {
+                if (target.getName().equals(player.getName())) {
                     target.sendMessage(AutoSell.getAutoSell().getPrefix() + "Happy selling!");
                 } else {
                     target.sendMessage(AutoSell.getAutoSell().getPrefix() + "Happy selling! " + player.getName() + " just bought you " + amount + " Autosell chest!");
@@ -58,14 +66,14 @@ public class BuyAutoSellChestCommand implements CommandExecutor {
             } else {
                 player.sendMessage(AutoSell.getAutoSell().getPrefix() + "You need " + (price - AutoSell.getAutoSell().getEcon().getBalance(player)) + " more cash to buy " + amount + " Autosell chest!");
             }
+            return true;
         } catch (Exception ignored) {
-            if (target.getName() == player.getName()) {
-                    target.sendMessage(AutoSell.getAutoSell().getPrefix() + "Your inventory is full");
-                } else {
-                    player.sendMessage(AutoSell.getAutoSell().getPrefix() + "The inventory of " + args[0] + " is full");
-                }
+            if (target.getName().equals(player.getName())) {
+                target.sendMessage(AutoSell.getAutoSell().getPrefix() + "Your inventory is full");
+            } else {
+                player.sendMessage(AutoSell.getAutoSell().getPrefix() + "The inventory of " + args[0] + " is full");
+            }
+            return true;
         }
-
-        return false;
     }
 }

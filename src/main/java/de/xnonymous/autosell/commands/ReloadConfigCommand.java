@@ -1,6 +1,5 @@
 package de.xnonymous.autosell.commands;
 
-import com.mojang.brigadier.exceptions.CommandExceptionType;
 import de.xnonymous.autosell.AutoSell;
 import de.xnonymous.autosell.config.Config;
 import org.bukkit.command.Command;
