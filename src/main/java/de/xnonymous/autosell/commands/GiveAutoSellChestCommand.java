@@ -2,54 +2,91 @@ package de.xnonymous.autosell.commands;
 
 import de.xnonymous.autosell.AutoSell;
 import de.xnonymous.autosell.utils.ItemBuilder;
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
-import org.bukkit.command.CommandSender;
+import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
+import org.kayteam.kayteamapi.command.SimpleCommand;
+import org.kayteam.kayteamapi.yaml.Yaml;
 
-public class GiveAutoSellChestCommand implements CommandExecutor {
+public class GiveAutoSellChestCommand extends SimpleCommand {
+
+    private final AutoSell AUTOSELL;
+    private final Yaml messages;
+
+    public GiveAutoSellChestCommand(AutoSell AUTOSELL) {
+        super("GiveAutoSellChest");
+        this.AUTOSELL = AUTOSELL;
+        messages = AUTOSELL.getMessages();
+    }
+
     @Override
-    public boolean onCommand(CommandSender commandSender, Command command, String s, String[] args) {
-
-        if (args.length > 2) {
-            commandSender.sendMessage("Too many arguments!");
-            return false;
-        }
-        if (args.length < 1) {
-            commandSender.sendMessage("Not enough arguments!");
-            return false;
-        }
-
-        Player player = (Player) commandSender;
-        Player target = (Bukkit.getServer().getPlayer(args[0]));
-        int amount = 1;
-
-        if (target == null) {
-            commandSender.sendMessage(args[0] + " is not online!");
-            return true;
-        }
-        if (args.length == 2) {
-            if (args[1].matches("-?(0|[1-9]\\d*)")) {
-                amount = Integer.parseInt(args[1]);
+    public void onConsoleExecute(ConsoleCommandSender sender, String[] args) {
+        if (args.length > 0) {
+            String targetName = args[0];
+            Player target = AUTOSELL.getServer().getPlayerExact(targetName);
+            int amount;
+            if (target != null) {
+                if (args.length > 1) {
+                    String amountString = args[1];
+                    try {
+                        amount = Integer.parseInt(amountString);
+                        if (amount > 0) {
+                            try {
+                                target.getInventory().addItem(new ItemBuilder(Material.CHEST, amount).setName("§aAutoSell Chest").toItemStack());
+                                messages.sendMessage(sender, "give");
+                            } catch (IllegalArgumentException ignored) {
+                                messages.sendMessage(sender, "inventoryFullOther", new String[][]{{"%player%", targetName}});
+                            }
+                        } else {
+                            messages.sendMessage(sender, "negativeNumber");
+                        }
+                    } catch (NumberFormatException ignored) {
+                        messages.sendMessage(sender, "invalidNumber", new String[][]{{"%number%", amountString}});
+                    }
+                }
             } else {
-                commandSender.sendMessage(args[1] + " is not a number");
-                return false;
+                messages.sendMessage(sender, "playerIsOffline", new String[][]{{"%player%", args[0]}});
             }
-        }
-        if (Integer.signum(amount) != 1) {
-            commandSender.sendMessage("Amount must be greater than 0");
-            return true;
-        }
-
-        try {
-            target.getInventory().addItem(new ItemBuilder(Material.CHEST, amount).setName("§aAutoSell Chest").toItemStack());
-            target.sendMessage(AutoSell.getAutoSell().getPrefix() + "Happy selling!");
-            return true;
-        } catch (Exception ignored) {
-            player.sendMessage(AutoSell.getAutoSell().getPrefix() + "The inventory of " + args[0] + " is full");
-            return true;
+        } else {
+            messages.sendMessage(sender, "noArguments");
         }
     }
+
+    @Override
+    public void onPlayerExecute(Player sender, String[] args) {
+        if (sender.hasPermission("autosell.give")) {
+            if (args.length > 0) {
+                String targetName = args[0];
+                Player target = AUTOSELL.getServer().getPlayerExact(targetName);
+                int amount;
+                if (target != null) {
+                    if (args.length > 1) {
+                        String amountString = args[1];
+                        try {
+                            amount = Integer.parseInt(amountString);
+                            if (amount > 0) {
+                                try {
+                                    target.getInventory().addItem(new ItemBuilder(Material.CHEST, amount).setName("§aAutoSell Chest").toItemStack());
+                                    messages.sendMessage(sender, "gived");
+                                } catch (IllegalArgumentException ignored) {
+                                    messages.sendMessage(sender, "inventoryFullOther", new String[][]{{"%player%", targetName}});
+                                }
+                            } else {
+                                messages.sendMessage(sender, "negativeNumber");
+                            }
+                        } catch (NumberFormatException ignored) {
+                            messages.sendMessage(sender, "invalidNumber", new String[][]{{"%number%", amountString}});
+                        }
+                    }
+                } else {
+                    messages.sendMessage(sender, "playerIsOffline", new String[][]{{"%player%", args[0]}});
+                }
+            } else {
+                messages.sendMessage(sender, "noArguments");
+            }
+        } else {
+            messages.sendMessage(sender, "noPermission");
+        }
+    }
+
 }

@@ -14,18 +14,21 @@ import java.io.IOException;
 @Setter
 public class Config implements INameable {
 
+    private final AutoSell autoSell;
+
     private String name;
     private File file;
     private FileConfiguration cfg;
 
-    public Config(String name) {
+    public Config(AutoSell autoSell, String name) {
+        this.autoSell = autoSell;
         this.name = name;
-        this.file = new File(AutoSell.getAutoSell().getDataFolder(), name + ".yml");
+        this.file = new File(autoSell.getDataFolder(), name + ".yml");
         this.cfg = YamlConfiguration.loadConfiguration(file);
     }
 
     public void reload() {
-        this.file = new File(AutoSell.getAutoSell().getDataFolder(), name + ".yml");
+        this.file = new File(autoSell.getDataFolder(), name + ".yml");
         this.cfg = YamlConfiguration.loadConfiguration(file);
     }
 

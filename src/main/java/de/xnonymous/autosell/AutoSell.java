@@ -3,54 +3,43 @@ package de.xnonymous.autosell;
 import de.xnonymous.autosell.chest.PlayerChestRegistry;
 import de.xnonymous.autosell.commands.*;
 import de.xnonymous.autosell.config.ConfigRegistry;
-import de.xnonymous.autosell.config.impl.ChestConfig;
-import de.xnonymous.autosell.config.impl.DefaultConfig;
-import de.xnonymous.autosell.config.impl.WorthConfig;
 import de.xnonymous.autosell.listener.InventoryClickListener;
 import de.xnonymous.autosell.listener.InventoryMoveItemListener;
 import de.xnonymous.autosell.listener.PlayerBlockBreakListener;
 import de.xnonymous.autosell.listener.PlayerBlockPlaceListener;
-import lombok.Getter;
-import lombok.Setter;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.kayteam.kayteamapi.yaml.Yaml;
 
-@Getter
-@Setter
 public class AutoSell extends JavaPlugin {
 
-    @Getter
-    private static AutoSell autoSell;
+    private final Yaml settings = new Yaml(this, "settings");
+    private final Yaml messages = new Yaml(this, "messages");
+    private final Yaml worth = new Yaml(this, "worth");
+    private final Yaml chests = new Yaml(this, "chests");
 
     private PlayerChestRegistry playerChestRegistry;
     private ConfigRegistry configRegistry;
-
-    private String prefix;
     private double multiplier;
     private int chestLimit;
     private double price;
 
-    private Economy econ;
-
-    private DefaultConfig defaultConfig;
-    private ChestConfig chestConfig;
-    private WorthConfig worthConfig;
+    private Economy economy;
 
     @Override
     public void onEnable() {
-        autoSell = this;
         this.configRegistry = new ConfigRegistry();
 
         setupEconomy();
-        registerConfigs();
+        registerFiles();
         registerListener();
         registerCommands();
 
-        this.playerChestRegistry = new PlayerChestRegistry();
+        this.playerChestRegistry = new PlayerChestRegistry(this);
     }
 
     @Override
@@ -58,57 +47,94 @@ public class AutoSell extends JavaPlugin {
 
     }
 
-    private void registerConfigs() {
-        this.configRegistry.register(defaultConfig = new DefaultConfig());
-        this.configRegistry.register(chestConfig = new ChestConfig());
-        this.configRegistry.register(worthConfig = new WorthConfig());
-
-        defaultConfig.getCfg().addDefault("Prefix", "&b[AutoSell] &a»");
-        defaultConfig.getCfg().addDefault("Multiplier", 1.0);
-        defaultConfig.getCfg().addDefault("ChestLimit", 3);
-        defaultConfig.getCfg().addDefault("Price", 100.0);
-        defaultConfig.getCfg().options().copyDefaults(true);
-        defaultConfig.save();
-
+    public void onReload() {
+        settings.reloadFileConfiguration();
+        messages.reloadFileConfiguration();
+        worth.registerFileConfiguration();
         for (Material value : Material.values()) {
-            worthConfig.getCfg().addDefault(value.name(), -1.0);
+            if (!worth.contains(value.name())) {
+                worth.set(value.name(), 0.0);
+            }
         }
-        worthConfig.getCfg().options().copyDefaults(true);
-        worthConfig.save();
-
-
-        prefix = defaultConfig.getCfg().getString("Prefix").replaceAll("&", "§") + " ";
-        multiplier = defaultConfig.getCfg().getDouble("Multiplier");
-        chestLimit = defaultConfig.getCfg().getInt("ChestLimit");
-        price = defaultConfig.getCfg().getDouble("Price");
+        worth.saveFileConfiguration();
+        chests.reloadFileConfiguration();
     }
 
-    private void setupEconomy() {
-        RegisteredServiceProvider<Economy> rsp = getServer().getServicesManager().getRegistration(Economy.class);
-        if (rsp == null) {
-            return;
+    private void registerFiles() {
+        settings.registerFileConfiguration();
+        multiplier = settings.getDouble("Multiplier");
+        chestLimit = settings.getInt("ChestLimit");
+        price = settings.getDouble("Price");
+
+        messages.registerFileConfiguration();
+        worth.registerFileConfiguration();
+        for (Material value : Material.values()) {
+            if (!worth.contains(value.name())) {
+                worth.set(value.name(), 0.0);
+            }
         }
-        econ = rsp.getProvider();
+        worth.saveFileConfiguration();
+        chests.registerFileConfiguration();
     }
 
     private void registerListener() {
         PluginManager pluginManager = Bukkit.getPluginManager();
-        pluginManager.registerEvents(new InventoryMoveItemListener(), this);
-        pluginManager.registerEvents(new PlayerBlockPlaceListener(), this);
-        pluginManager.registerEvents(new PlayerBlockBreakListener(), this);
-        pluginManager.registerEvents(new InventoryClickListener(), this);
+        pluginManager.registerEvents(new InventoryMoveItemListener(this), this);
+        pluginManager.registerEvents(new PlayerBlockPlaceListener(this), this);
+        pluginManager.registerEvents(new PlayerBlockBreakListener(this), this);
+        pluginManager.registerEvents(new InventoryClickListener(this), this);
     }
 
     private void registerCommands() {
-        getCommand("BuyAutoSellChest").setExecutor(new BuyAutoSellChestCommand());
-        getCommand("GiveAutoSellChest").setExecutor(new GiveAutoSellChestCommand());
-        getCommand("EnableAutoSellChestDebug").setExecutor(new EnableAutoSellChestDebugCommand());
-        getCommand("ListAutoSellChests").setExecutor(new ListAutoSellCommand());
-        getCommand("ReloadAutoSellConfig").setExecutor(new ReloadConfigCommand());
+        new BuyAutoSellChestCommand(this).registerCommand(this);
+        new GiveAutoSellChestCommand(this).registerCommand(this);
+        new EnableAutoSellChestDebugCommand(this).registerCommand(this);
+        new ListAutoSellCommand(this).registerCommand(this);
+        new ReloadConfigCommand(this).registerCommand(this);
     }
 
-    public void reload() {
-        registerConfigs();
+    public Yaml getSettings() {
+        return settings;
+    }
+
+    public Yaml getMessages() {
+        return messages;
+    }
+
+    public Yaml getWorth() {
+        return worth;
+    }
+
+    public PlayerChestRegistry getPlayerChestRegistry() {
+        return playerChestRegistry;
+    }
+
+    public Yaml getChests() {
+        return chests;
+    }
+
+    public double getMultiplier() {
+        return multiplier;
+    }
+
+    public int getChestLimit() {
+        return chestLimit;
+    }
+
+    public double getPrice() {
+        return price;
+    }
+
+    private void setupEconomy() {
+        RegisteredServiceProvider<Economy> registeredServiceProvider = getServer().getServicesManager().getRegistration(Economy.class);
+        if (registeredServiceProvider == null) {
+            return;
+        }
+        economy = registeredServiceProvider.getProvider();
+    }
+
+    public Economy getEconomy() {
+        return economy;
     }
 
 }

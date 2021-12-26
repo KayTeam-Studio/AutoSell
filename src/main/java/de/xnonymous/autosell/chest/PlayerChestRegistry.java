@@ -8,24 +8,25 @@ import org.bukkit.OfflinePlayer;
 
 import java.util.ArrayList;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Data
 public class PlayerChestRegistry {
 
+    private final AutoSell autoSell;
     private ArrayList<PlayerChest> playerChests = new ArrayList<>();
 
-    public PlayerChestRegistry() {
+    public PlayerChestRegistry(AutoSell autoSell) {
+        this.autoSell = autoSell;
         try {
-            for (String key : AutoSell.getAutoSell().getChestConfig().getCfg().getKeys(false)) {
+            for (String key : autoSell.getChests().getFileConfiguration().getKeys(false)) {
                 OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(UUID.fromString(key));
                 ArrayList<Location> locations = new ArrayList<>();
                 try {
-                    ArrayList<Location> locations1 = (ArrayList<Location>) AutoSell.getAutoSell().getChestConfig().getCfg().get(key + ".loc");
+                    ArrayList<Location> locations1 = (ArrayList<Location>) autoSell.getChests().getFileConfiguration().get(key + ".loc");
                     locations = locations1;
                 } catch (Exception ignored) {
                 }
-                PlayerChest playerChest = new PlayerChest(offlinePlayer, locations, AutoSell.getAutoSell().getChestConfig().getCfg().getBoolean(key + ".debug"));
+                PlayerChest playerChest = new PlayerChest(autoSell, offlinePlayer, locations, autoSell.getChests().getBoolean(key + ".debug"));
                 add(playerChest);
             }
         } catch (Exception e) {

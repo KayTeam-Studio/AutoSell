@@ -8,12 +8,17 @@ import org.bukkit.event.inventory.InventoryCloseEvent;
 
 public class InventoryClickListener implements Listener {
 
+    private final AutoSell autoSell;
+
+    public InventoryClickListener(AutoSell autoSell) {
+        this.autoSell = autoSell;
+    }
 
     @EventHandler
     public void onInventoryClick(InventoryCloseEvent event) {
         if (event.getInventory().getLocation() == null)
             return;
-        PlayerChest playerChest = AutoSell.getAutoSell().getPlayerChestRegistry().find(event.getInventory().getLocation());
+        PlayerChest playerChest = autoSell.getPlayerChestRegistry().find(event.getInventory().getLocation());
         if (playerChest != null)
             playerChest.handle(event.getInventory().getLocation());
 

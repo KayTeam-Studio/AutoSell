@@ -1,7 +1,10 @@
 package de.xnonymous.autosell.config.impl;
 
-public class DefaultConfig extends de.xnonymous.autosell.config.Config {
-    public DefaultConfig() {
-        super("Config");
+import de.xnonymous.autosell.AutoSell;
+import de.xnonymous.autosell.config.Config;
+
+public class DefaultConfig extends Config {
+    public DefaultConfig(AutoSell autoSell) {
+        super(autoSell, "Config");
     }
 }

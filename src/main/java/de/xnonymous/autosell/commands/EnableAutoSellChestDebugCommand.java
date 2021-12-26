@@ -1,30 +1,42 @@
 package de.xnonymous.autosell.commands;
 
 import de.xnonymous.autosell.AutoSell;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
-import org.bukkit.command.CommandSender;
+import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
+import org.kayteam.kayteamapi.command.SimpleCommand;
+import org.kayteam.kayteamapi.yaml.Yaml;
 
-public class EnableAutoSellChestDebugCommand implements CommandExecutor {
-    @Override
-    public boolean onCommand(CommandSender commandSender, Command command, String s, String[] strings) {
-        if (!(commandSender instanceof Player)) {
-            commandSender.sendMessage("You must be a player to execute this command");
-            return false;
-        }
-        Player player = (Player) commandSender;
+public class EnableAutoSellChestDebugCommand extends SimpleCommand {
 
-        if (AutoSell.getAutoSell().getPlayerChestRegistry().find(player) == null) {
-            player.sendMessage(AutoSell.getAutoSell().getPrefix() + "You must have placed at least one chest to enable debugging");
-            return false;
-        }
+    private final AutoSell AUTOSELL;
+    private final Yaml messages;
 
-        AutoSell.getAutoSell().getPlayerChestRegistry().find(player).setDebug(!AutoSell.getAutoSell().getPlayerChestRegistry().find(player).isDebug());
-        AutoSell.getAutoSell().getChestConfig().getCfg().set(player.getUniqueId().toString() + ".debug", AutoSell.getAutoSell().getPlayerChestRegistry().find(player).isDebug());
-        AutoSell.getAutoSell().getChestConfig().save();
-        player.sendMessage(AutoSell.getAutoSell().getPrefix() + "Debugging " + (AutoSell.getAutoSell().getPlayerChestRegistry().find(player).isDebug() ? "enabled" : "disabled"));
-
-        return false;
+    public EnableAutoSellChestDebugCommand(AutoSell AUTOSELL) {
+        super("EnableAutoSellChestDebug");
+        this.AUTOSELL = AUTOSELL;
+        messages = AUTOSELL.getMessages();
     }
+
+    @Override
+    public void onConsoleExecute(ConsoleCommandSender sender, String[] args) {
+        messages.sendMessage(sender, "onlyPlayer");
+    }
+
+    @Override
+    public void onPlayerExecute(Player sender, String[] args) {
+        if (sender.hasPermission("autosell.debug")) {
+            if (AUTOSELL.getPlayerChestRegistry().find(sender) != null) {
+                AUTOSELL.getPlayerChestRegistry().find(sender).setDebug(!AUTOSELL.getPlayerChestRegistry().find(sender).isDebug());
+                AUTOSELL.getChests().set(sender.getUniqueId() + ".debug", AUTOSELL.getPlayerChestRegistry().find(sender).isDebug());
+                AUTOSELL.getChests().saveFileConfiguration();
+                String status = AUTOSELL.getPlayerChestRegistry().find(sender).isDebug() ? "enabled" : "disabled";
+                messages.sendMessage(sender, "debugging", new String[][]{{"%status%", status}});
+            } else {
+                messages.sendMessage(sender, "needChestsPlacedToDebug");
+            }
+        } else {
+            messages.sendMessage(sender, "noPermission");
+        }
+    }
+
 }

@@ -9,25 +9,33 @@ import org.bukkit.Material;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.kayteam.kayteamapi.yaml.Yaml;
+
+import java.util.Objects;
 
 
 public class PlayerBlockBreakListener implements Listener {
+
+    private final AutoSell autoSell;
+
+    public PlayerBlockBreakListener(AutoSell autoSell) {
+        this.autoSell = autoSell;
+    }
 
     @EventHandler
     public void onPlayerBlockBreak(BlockBreakEvent event) {
         if (!event.isCancelled()) {
             if (event.getBlock().getType() == Material.CHEST) {
                 Location location = event.getBlock().getLocation();
-                PlayerChest playerChest = AutoSell.getAutoSell().getPlayerChestRegistry().find(location);
-
+                PlayerChest playerChest = autoSell.getPlayerChestRegistry().find(location);
                 if (playerChest != null) {
                     playerChest.remove(location);
                     event.setDropItems(false);
-                    location.getWorld().dropItem(location, new ItemBuilder(Material.CHEST).setName("§aAutoSell Chest").toItemStack());
-                    ChestConfig chestConfig = AutoSell.getAutoSell().getChestConfig();
-                    chestConfig.getCfg().set(playerChest.getOfflinePlayer().getUniqueId().toString() + ".loc", playerChest.getChests());
-                    chestConfig.save();
-                    event.getPlayer().sendMessage(AutoSell.getAutoSell().getPrefix() + "AutoSelling chest broken");
+                    Objects.requireNonNull(location.getWorld()).dropItem(location, new ItemBuilder(Material.CHEST).setName("§aAutoSell Chest").toItemStack());
+                    Yaml chests = autoSell.getChests();
+                    chests.set(playerChest.getOfflinePlayer().getUniqueId().toString() + ".loc", playerChest.getChests());
+                    chests.saveFileConfiguration();
+                    autoSell.getMessages().sendMessage(event.getPlayer(), "chestBroken");
                 }
 
             }

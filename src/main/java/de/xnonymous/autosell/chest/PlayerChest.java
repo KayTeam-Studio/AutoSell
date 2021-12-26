@@ -1,52 +1,58 @@
 package de.xnonymous.autosell.chest;
 
 import de.xnonymous.autosell.AutoSell;
-import de.xnonymous.autosell.config.impl.WorthConfig;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.block.Chest;
 import org.bukkit.inventory.ItemStack;
+import org.kayteam.kayteamapi.yaml.Yaml;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 
-@AllArgsConstructor
 @Data
 public class PlayerChest {
 
+    private final AutoSell AUTOSELL;
     private OfflinePlayer offlinePlayer;
     private ArrayList<Location> chests;
     private boolean debug;
+
+    public PlayerChest(AutoSell AUTOSELL, OfflinePlayer offlinePlayer, ArrayList<Location> locations, boolean debug) {
+        this.AUTOSELL = AUTOSELL;
+        this.offlinePlayer = offlinePlayer;
+        this.chests = locations;
+        this.debug = debug;
+    }
 
     public void handle(Location location) {
         Chest chest = (Chest) location.getBlock().getState();
         for (ItemStack content : chest.getBlockInventory().getContents()) {
             if (content == null)
                 continue;
-
             try {
-                WorthConfig worthConfig = AutoSell.getAutoSell().getWorthConfig();
-                double price =  worthConfig.getCfg().getDouble(content.getType().name());
-
-                double real = (price * content.getAmount()) * AutoSell.getAutoSell().getMultiplier();
-
+                Yaml worth = AUTOSELL.getWorth();
+                double price =  worth.getDouble(content.getType().name(), 0.0);
+                double real = (price * content.getAmount()) * AUTOSELL.getMultiplier();
                 if (1 > real) {
-                    debug("Price is not defined in worth.yml!");
-                    debug("Please set a price for " + content.getType().name());
+                    AUTOSELL.getMessages().sendMessage(offlinePlayer.getPlayer(), "debug.priceUndefined", new String[][]{
+                            {"%item%", content.getType().toString()}
+                    });
                     continue;
                 }
-
-                debug("Selling " + content.getAmount() + " " + content.getType().name().replaceAll("_", "") + " for " + round(real, 2) + "$");
+                if (offlinePlayer.isOnline() && debug) {
+                    AUTOSELL.getMessages().sendMessage(offlinePlayer.getPlayer(), "debug.selling", new String[][]{
+                            {"%item%", content.getType().toString()},
+                            {"%amount%", content.getAmount() + ""},
+                            {"%money%", round(real, 2) + ""}
+                    });
+                }
                 content.setAmount(0);
-                AutoSell.getAutoSell().getEcon().depositPlayer(offlinePlayer, real);
-            } catch (Exception ignored) {
-                try {
-                    debug("Could not sell " + content.getType().name());
-                } catch (Exception e) {
-                    debug("Item error!");
+                AUTOSELL.getEconomy().depositPlayer(offlinePlayer, real);
+            } catch (Exception e) {
+                e.printStackTrace();
+                if (offlinePlayer.isOnline() && debug) {
+                    AUTOSELL.getMessages().sendMessage(offlinePlayer.getPlayer(), "debug.error");
                 }
             }
         }
@@ -60,13 +66,8 @@ public class PlayerChest {
         this.chests.remove(location);
     }
 
-    public void debug(String msg) {
-        if (offlinePlayer.isOnline() && debug)
-            offlinePlayer.getPlayer().sendMessage(AutoSell.getAutoSell().getPrefix() + msg);
-    }
-
     public int available() {
-        return AutoSell.getAutoSell().getChestLimit() - chests.size();
+        return AUTOSELL.getChestLimit() - chests.size();
     }
 
     public double round(double zahl, int stellen) {

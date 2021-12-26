@@ -12,7 +12,12 @@ import java.util.ArrayList;
 
 public class InventoryMoveItemListener implements Listener {
 
+    private final AutoSell autoSell;
     private final ArrayList<Location> locations = new ArrayList<>();
+
+    public InventoryMoveItemListener(AutoSell autoSell) {
+        this.autoSell = autoSell;
+    }
 
     @EventHandler
     public void onInventoryMoveItem(InventoryMoveItemEvent event) {
@@ -20,11 +25,11 @@ public class InventoryMoveItemListener implements Listener {
             Location location = event.getDestination().getLocation();
             if (locations.contains(location))
                 return;
-            PlayerChest playerChest = AutoSell.getAutoSell().getPlayerChestRegistry().find(location);
+            PlayerChest playerChest = autoSell.getPlayerChestRegistry().find(location);
             if (playerChest == null)
                 return;
             locations.add(location);
-            Bukkit.getScheduler().runTaskLater(AutoSell.getAutoSell(), () -> {
+            Bukkit.getScheduler().runTaskLater(autoSell, () -> {
                 playerChest.handle(location);
                 locations.remove(location);
             }, 5 * 20L);
